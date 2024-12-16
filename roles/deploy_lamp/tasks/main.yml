@@ -1,0 +1,40 @@
+---
+- name: Create Persistent Volume Claim for MySQL
+  k8s:
+    state: present
+    definition: "{{ lookup('file', 'files/mysql-pvc.yml') }}"
+
+- name: Deploy MySQL
+  k8s:
+    state: present
+    definition: "{{ lookup('file', 'files/mysql-deployment.yml') }}"
+
+- name: Expose MySQL Service
+  k8s:
+    state: present
+    definition: "{{ lookup('file', 'files/mysql-service.yml') }}"
+
+- name: Deploy Nginx with PHP
+  k8s:
+    state: present
+    definition: "{{ lookup('file', 'files/nginx-php-deployment.yml') }}"
+
+- name: Expose Nginx-PHP Service
+  k8s:
+    state: present
+    definition: "{{ lookup('file', 'files/nginx-service.yml') }}"
+
+- name: Wait for LoadBalancer external IP
+  shell: >
+    kubectl get service nginx-php-service
+    --namespace default
+    --output jsonpath='{.status.loadBalancer.ingress[0].ip}'
+  register: nginx_service_ip
+  retries: 10
+  delay: 10
+  until: nginx_service_ip.stdout != ""
+
+- name: Display the URL of the website
+  debug:
+    msg: "The website is accessible at http://{{ nginx_service_ip.stdout }}"
+

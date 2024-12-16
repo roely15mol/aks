@@ -1,0 +1,7 @@
+---
+- name: Create AKS cluster and deploy LAMP-stack
+  hosts: local
+  connection: local
+  roles:
+    - create_aks
+    - deploy_lamp

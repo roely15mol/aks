@@ -1,0 +1,21 @@
+---
+- name: Create Azure Resource Group
+  azure_rm_resourcegroup:
+    name: "{{ resource_group }}"
+    location: "{{ location }}"
+
+- name: Create AKS cluster
+  azure_rm_aks:
+    resource_group: "{{ resource_group }}"
+    name: "{{ aks_cluster_name }}"
+    location: "{{ location }}"
+    dns_prefix: "ansibleaks"
+    kubernetes_version: "{{ k8s_version }}"
+    agent_pool_profiles:
+      - name: default
+        count: "{{ node_count }}"
+        vm_size: "Standard_DS2_v2"
+
+- name: Get AKS credentials
+  command: >
+    az aks get-credentials --resource-group {{ resource_group }} --name {{ aks_cluster_name }}

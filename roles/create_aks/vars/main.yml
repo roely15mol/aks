@@ -1,0 +1,5 @@
+resource_group: "ansible-aks-rg"
+location: "WestEU"
+aks_cluster_name: "ansible-aks-cluster"
+node_count: 2
+k8s_version: "1.24.0"
